@@ -30,7 +30,6 @@ public:
     void refreshDirectory() {
         currentFiles.clear();
         currentFiles.push_back({"..", true, true, "<DIR>"});
-        
         try {
             for (const auto& entry : fs::directory_iterator(currentPath)) {
                 FileItem item;
@@ -52,14 +51,13 @@ public:
 
     void deleteFile() {
         if (currentFiles[selectedIndex].isParent) return;
-        std::cout << "\033[2J\033[1;1H";
-        std::cout << "Are you sure you want to delete " << currentFiles[selectedIndex].name << "? (y/n): ";
-        char choice; std::cin >> choice;
-        if (choice == 'y') { fs::remove_all(currentPath / currentFiles[selectedIndex].name); refreshDirectory(); }
+        std::string cmd = "rm -rf \"" + (currentPath / currentFiles[selectedIndex].name).string() + "\"";
+        std::system(cmd.c_str());
+        refreshDirectory();
     }
 
     void editFile() {
-        if (currentFiles[selectedIndex].isDirectory) return;
+        if (currentFiles[selectedIndex].isDirectory || currentFiles[selectedIndex].isParent) return;
         std::string cmd = "nano \"" + (currentPath / currentFiles[selectedIndex].name).string() + "\"";
         std::system(cmd.c_str());
     }
@@ -88,6 +86,24 @@ public:
         });
     }
 };
+
+int main() {
+    auto screen = ScreenInteractive::Fullscreen();
+    VortexManager vortex;
+    auto component = CatchEvent(Renderer([&] { return vortex.renderUI(); }), [&](Event event) {
+        if (event == Event::Character('q') || event == Event::Character('Q') || event == Event::Escape) screen.ExitLoopClosure()();
+        else if (event == Event::ArrowUp) vortex.moveUp();
+        else if (event == Event::ArrowDown) vortex.moveDown();
+        else if (event == Event::Return) vortex.openFile();
+        else if (event == Event::Character('e') || event == Event::Character('E')) vortex.editFile();
+        else if (event == Event::Character('r') || event == Event::Character('R')) vortex.renameFile();
+        else if (event == Event::Special(Key::Delete)) vortex.deleteFile();
+        else return false;
+        return true;
+    });
+    screen.Loop(component);
+    return 0;
+}
 
 /*#include <iostream>
 #include <vector>
