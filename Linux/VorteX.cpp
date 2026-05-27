@@ -97,7 +97,7 @@ int main() {
         else if (event == Event::Return) vortex.openFile();
         else if (event == Event::Character('e') || event == Event::Character('E')) vortex.editFile();
         else if (event == Event::Character('r') || event == Event::Character('R')) vortex.renameFile();
-        else if (event == Event::Special(Key::Delete)) vortex.deleteFile();
+        else if (event == Event::Special(Event::Delete)) vortex.deleteFile();
         else return false;
         return true;
     });
