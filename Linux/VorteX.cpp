@@ -71,7 +71,7 @@ public:
                 item.isDirectory = entry.is_directory();
                 item.sizeStr = item.isDirectory ? "<DIR>" : formatSize(entry.file_size());
                 try { item.permissions = getPermissionsStr(entry.status().permissions()); }
-                catch (...) { item.permissions = "???"; }
+                catch (...) { item.permissions = "---"; }
                 
                 if (item.isDirectory) dirs.push_back(item);
                 else files.push_back(item);
@@ -114,22 +114,29 @@ public:
     Element renderUI()
     {
         Elements listElements;
-        for (int i = 0; i < (int)currentFiles.size(); ++i)
+        if (currentFiles.empty())
         {
-            std::string textLine = (currentFiles[i].isDirectory ? "📁 " : "📄 ") + currentFiles[i].name;
-            if (i == selectedIndex) listElements.push_back(text(textLine) | bold | bgcolor(Color::Blue));
-            else listElements.push_back(text(textLine));
+            listElements.push_back(text(" Empty Directory ") | dim);
+        }
+        else
+        {
+            for (int i = 0; i < (int)currentFiles.size(); ++i)
+            {
+                std::string textLine = (currentFiles[i].isDirectory ? "📁 " : "📄 ") + currentFiles[i].name;
+                if (i == selectedIndex) listElements.push_back(text(textLine) | bold | bgcolor(Color::Blue));
+                else listElements.push_back(text(textLine));
+            }
         }
 
         Element previewBox = window(text(" Details "), vbox({
-            text("Name: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].name)),
-            text("Size: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].sizeStr)),
-            text("Perms: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].permissions))
+            text("Name: " + (currentFiles.empty() ? "None" : currentFiles[selectedIndex].name)),
+            text("Size: " + (currentFiles.empty() ? "N/A" : currentFiles[selectedIndex].sizeStr)),
+            text("Perms: " + (currentFiles.empty() ? "N/A" : currentFiles[selectedIndex].permissions))
         }));
 
         return vbox({
-            hbox({window(text(" Vortex "), vbox(std::move(listElements))) | flex, previewBox | size(WIDTH, EQUAL, 30)}) | flex,
-            text(" [Arrows]: Navigate | [Enter]: Open | [Backspace]: Back | [Q]: Quit ") | center
+            hbox({window(text(" Vortex File Manager "), vbox(std::move(listElements))) | flex, previewBox | size(WIDTH, EQUAL, 35)}) | flex,
+            text(" [Arrows]: Navigate | [Enter]: Enter | [Backspace]: Go Back | [Q]: Quit ") | center
         });
     }
 };
