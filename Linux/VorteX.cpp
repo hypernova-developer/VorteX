@@ -3,6 +3,93 @@
 #include <string>
 #include <filesystem>
 #include <algorithm>
+#include <cstdlib>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/screen.hpp>
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+
+namespace fs = std::filesystem;
+using namespace ftxui;
+
+struct FileItem { std::string name; bool isDirectory; bool isParent; std::string sizeStr; };
+
+class VortexManager {
+private:
+    fs::path currentPath;
+    std::vector<FileItem> currentFiles;
+    int selectedIndex;
+
+    void refreshDirectory() {
+        currentFiles.clear();
+        if (currentPath != currentPath.root_path()) currentFiles.push_back({"..", true, true, "<UP>"});
+        try {
+            for (const auto& entry : fs::directory_iterator(currentPath)) {
+                currentFiles.push_back({entry.path().filename().string(), entry.is_directory(), false, entry.is_directory() ? "<DIR>" : std::to_string(entry.file_size() / 1024) + " KB"});
+            }
+        } catch (...) {}
+        std::sort(currentFiles.begin() + (currentFiles[0].isParent ? 1 : 0), currentFiles.end(), [](auto& a, auto& b) { return a.name < b.name; });
+    }
+
+public:
+    VortexManager() { currentPath = fs::current_path(); selectedIndex = 0; refreshDirectory(); }
+    
+    void handleEnter() {
+        if (currentFiles[selectedIndex].isParent) { currentPath = currentPath.parent_path(); selectedIndex = 0; refreshDirectory(); }
+        else if (currentFiles[selectedIndex].isDirectory) { currentPath /= currentFiles[selectedIndex].name; selectedIndex = 0; refreshDirectory(); }
+        else { std::string cmd = "xdg-open \"" + (currentPath / currentFiles[selectedIndex].name).string() + "\" &"; std::system(cmd.c_str()); }
+    }
+
+    void handleEdit() {
+        if (!currentFiles[selectedIndex].isDirectory && !currentFiles[selectedIndex].isParent) {
+            std::string cmd = "nano \"" + (currentPath / currentFiles[selectedIndex].name).string() + "\"";
+            std::system(cmd.c_str());
+        }
+    }
+
+    void handleDelete() {
+        if (currentFiles[selectedIndex].isParent) return;
+        std::cout << "\033[2J\033[HDelete " << currentFiles[selectedIndex].name << "? (y/n): ";
+        char c; std::cin >> c;
+        if (c == 'y') { fs::remove_all(currentPath / currentFiles[selectedIndex].name); refreshDirectory(); }
+    }
+
+    void moveUp() { if (selectedIndex > 0) selectedIndex--; }
+    void moveDown() { if (selectedIndex < (int)currentFiles.size() - 1) selectedIndex++; }
+
+    Element renderUI() {
+        Elements listElements;
+        for (int i = 0; i < (int)currentFiles.size(); ++i) {
+            std::string label = (currentFiles[i].isDirectory ? "📁 " : "📄 ") + currentFiles[i].name;
+            listElements.push_back(i == selectedIndex ? text(label) | bold | bgcolor(Color::Blue) : text(label));
+        }
+        return vbox({hbox({window(text(" Vortex "), vbox(std::move(listElements))) | flex}) | flex,
+                     text(" [Enter]: Open/CD | [E]: Edit | [Del]: Delete | [Q]: Quit ") | center});
+    }
+};
+
+int main() {
+    auto screen = ScreenInteractive::Fullscreen();
+    VortexManager vortex;
+    auto component = CatchEvent(Renderer([&] { return vortex.renderUI(); }), [&](Event event) {
+        if (event == Event::Character('q')) screen.ExitLoopClosure()();
+        else if (event == Event::ArrowUp) vortex.moveUp();
+        else if (event == Event::ArrowDown) vortex.moveDown();
+        else if (event == Event::Return) vortex.handleEnter();
+        else if (event == Event::Character('e')) vortex.handleEdit();
+        else if (event == Event::Delete) vortex.handleDelete();
+        else return false;
+        return true;
+    });
+    screen.Loop(component);
+    return 0;
+}
+
+/*#include <iostream>
+#include <vector>
+#include <string>
+#include <filesystem>
+#include <algorithm>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
 #include <ftxui/component/component.hpp>
@@ -157,3 +244,4 @@ int main()
     screen.Loop(component);
     return 0;
 }
+*/
