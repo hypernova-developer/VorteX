@@ -121,15 +121,15 @@ public:
             else listElements.push_back(text(textLine));
         }
 
-        Element previewBox = window(text(" Detaylar "), vbox({
-            text("Ad: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].name)),
-            text("Boyut: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].sizeStr)),
-            text("İzin: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].permissions))
+        Element previewBox = window(text(" Details "), vbox({
+            text("Name: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].name)),
+            text("Size: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].sizeStr)),
+            text("Perms: " + (currentFiles.empty() ? "" : currentFiles[selectedIndex].permissions))
         }));
 
         return vbox({
             hbox({window(text(" Vortex "), vbox(std::move(listElements))) | flex, previewBox | size(WIDTH, EQUAL, 30)}) | flex,
-            text(" [Ok]: Hareket | [Enter]: Giriş | [Backspace]: Geri | [Q]: Çıkış ") | center
+            text(" [Arrows]: Navigate | [Enter]: Open | [Backspace]: Back | [Q]: Quit ") | center
         });
     }
 };
@@ -139,7 +139,7 @@ int main()
     auto screen = ScreenInteractive::Fullscreen();
     VortexManager vortex;
     auto component = CatchEvent(Renderer([&] { return vortex.renderUI(); }), [&](Event event) {
-        if (event == Event::Character('q') || event == Event::Escape) screen.ExitLoopClosure()();
+        if (event == Event::Character('q') || event == Event::Character('Q') || event == Event::Escape) screen.ExitLoopClosure()();
         else if (event == Event::ArrowUp) vortex.moveUp();
         else if (event == Event::ArrowDown) vortex.moveDown();
         else if (event == Event::Return) vortex.enterDirectory();
