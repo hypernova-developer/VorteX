@@ -40,7 +40,7 @@ VorteX strictly obeys the foundational principles of minimized structural footpr
 3. C++ FTXUI (TUI)
  This was the true final of the project VorteX. It looked so pretty and worked well without bugs.
 
-- VorteX is inspired by (sxyazi/yazi)[https://github.com/sxyazi/yazi].
+- VorteX is inspired by [sxyazi/yazi](https://github.com/sxyazi/yazi).
 
 - VorteX has a one-line edition source code in my other repository [OneLineHub](https://github.com/hypernova-developer/OneLineHub). 470 lines, compressed to ***one***!
 
