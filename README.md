@@ -1,6 +1,6 @@
-# VORTEX (Visual Object Routing & Terminal File Explorer)
+# VorteX
 
-VORTEX is a high-performance, interactive Terminal User Interface (TUI) file manager and directory router built in modern C++. Powered by the functional FTXUI library and standard filesystem vectors, it provides a lightning-fast, keyboard-driven navigation dashboard with zero dependency bloating.
+VorteX is a high-performance, interactive Terminal User Interface (TUI) file manager and directory router built in modern C++. Powered by the functional FTXUI library and standard filesystem vectors, it provides a lightning-fast, keyboard-driven navigation dashboard with zero dependency bloating. 
 
 ## Key Architecture & Features
 
@@ -27,7 +27,7 @@ Operating VORTEX is strictly decentralized from cursor control devices, relying 
 ---
 
 ## Technical Maintenance Note
-VORTEX strictly obeys the foundational principles of minimized structural footprints. It encapsulates core state managers within isolated component render scopes, ensuring consistent tick performance even under high-density system structures. Part of the automated development toolsets pipeline.
+VorteX strictly obeys the foundational principles of minimized structural footprints. It encapsulates core state managers within isolated component render scopes, ensuring consistent tick performance even under high-density system structures. Part of the automated development toolsets pipeline.
 
 ---
 
