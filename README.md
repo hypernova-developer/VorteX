@@ -42,7 +42,7 @@ VorteX strictly obeys the foundational principles of minimized structural footpr
 
 - VorteX is inspired by (sxyazi/yazi)[https://github.com/sxyazi/yazi].
 
-- VorteX has a one-line edition source code in my other repository (OneLineHub)[https://github.com/hypernova-developer/OneLineHub]. 470 lines, compressed to ***one***!
+- VorteX has a one-line edition source code in my other repository [OneLineHub](https://github.com/hypernova-developer/OneLineHub). 470 lines, compressed to ***one***!
 
 ---
 
