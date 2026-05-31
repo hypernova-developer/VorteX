@@ -1,0 +1,1 @@
+I do not really recommend you to use the Windows version. It is not stable, full of bugs and not compiled successfully without some errors. You can still help me improve UX for Windows version of the VorteX project. Thanks for understanding.
