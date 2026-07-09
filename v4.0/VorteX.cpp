@@ -304,6 +304,7 @@ struct VortexAppState
         StartAsyncSizes();
         left_selected = 0;
         mid_selected = 0;
+        focus = FocusTarget::Middle;
     }
 
     void EnterMiddle(std::size_t index)
@@ -324,26 +325,7 @@ struct VortexAppState
         StartAsyncSizes();
         mid_selected = 0;
         left_selected = 0;
-    }
-
-    void EnterLeft(std::size_t index)
-    {
-        if (index >= parent_dir.items.size())
-        {
-            return;
-        }
-        if (!parent_dir.items[index].is_dir)
-        {
-            return;
-        }
-        {
-            std::lock_guard<std::mutex> lk(fs_m);
-            current_dir.path = parent_dir.items[index].path;
-        }
-        RefreshAll();
-        StartAsyncSizes();
-        mid_selected = 0;
-        left_selected = 0;
+        focus = FocusTarget::Middle;
     }
 
     void OpenEntry(fs::path const& p)
@@ -612,7 +594,7 @@ int main()
         {
             if (state->focus == VortexAppState::FocusTarget::Left)
             {
-                return std::string("Focus: Parent | [->] Enter current | [Tab] Input");
+                return std::string("Focus: Parent | [->] Center current | [Tab] Input");
             }
             if (state->focus == VortexAppState::FocusTarget::Middle)
             {
@@ -763,6 +745,13 @@ int main()
             }
             return action_input_comp->OnEvent(event);
         }
+        
+        if (event == Event::ArrowLeft)
+        {
+            state->NavigateUp();
+            return true;
+        }
+
         if (state->focus == FT::Left)
         {
             std::vector<std::size_t> filtered = state->parent_dir.FilteredIndices(state->find_query, state->find_mode);
@@ -807,11 +796,6 @@ int main()
                 {
                     state->mid_selected--;
                 }
-                return true;
-            }
-            if (event == Event::ArrowLeft)
-            {
-                state->NavigateUp();
                 return true;
             }
             if (event == Event::ArrowRight || event == Event::Return)
@@ -862,11 +846,6 @@ int main()
         }
         if (state->focus == FT::Right)
         {
-            if (event == Event::ArrowLeft)
-            {
-                state->focus = FT::Middle;
-                return true;
-            }
             if (event == Event::Return)
             {
                 std::vector<std::size_t> filtered = state->current_dir.FilteredIndices(state->find_query, state->find_mode);
