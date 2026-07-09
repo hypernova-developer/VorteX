@@ -612,15 +612,15 @@ int main()
         {
             if (state->focus == VortexAppState::FocusTarget::Left)
             {
-                return std::string("Focus: Parent Directory | [Tab] Switch Focus");
+                return std::string("Focus: Parent | [->] Enter current | [Tab] Input");
             }
             if (state->focus == VortexAppState::FocusTarget::Middle)
             {
-                return std::string("Focus: Current Directory | [F] Find | [R] Rename | [N] Create File");
+                return std::string("Focus: Current | [->] Enter Directory / Open File | [<-] Go Parent");
             }
             if (state->focus == VortexAppState::FocusTarget::Right)
             {
-                return std::string("Focus: Preview Panel | [Tab] Switch Focus");
+                return std::string("Focus: Preview Panel | [<-] Return to Current");
             }
             return std::string("Focus: Action Input | [Esc] Cancel | [Enter] Apply");
         }();
@@ -629,16 +629,16 @@ int main()
             separator(),
             hbox({
                 vbox({
-                    text(" [Tab]  Switch Focus"),
+                    text(" [->]   Enter/Open Selected"),
+                    text(" [<-]   Navigate to Parent"),
                     text(" [F]    Find Mode"),
-                    text(" [R]    Rename Entry"),
-                    text(" [N]    Create File")
+                    text(" [R]    Rename Entry")
                 }),
                 separator(),
                 vbox({
-                    text(" [Esc]  Cancel Action"),
+                    text(" [N]    Create File"),
                     text(" [Del]  Delete Selected"),
-                    text(" [Enter] Open/Navigate"),
+                    text(" [Esc]  Cancel Action"),
                     text(" [Q]    Quit Application")
                 })
             })
@@ -782,21 +782,9 @@ int main()
                 }
                 return true;
             }
-            if (event == Event::Return)
+            if (event == Event::ArrowRight || event == Event::Return)
             {
-                if (filtered.empty() || state->left_selected >= filtered.size())
-                {
-                    return true;
-                }
-                std::size_t idx = filtered[state->left_selected];
-                if (state->parent_dir.items[idx].is_dir)
-                {
-                    state->EnterLeft(idx);
-                }
-                else
-                {
-                    state->OpenEntry(state->parent_dir.items[idx].path);
-                }
+                state->focus = FT::Middle;
                 return true;
             }
             return false;
@@ -821,7 +809,12 @@ int main()
                 }
                 return true;
             }
-            if (event == Event::Return)
+            if (event == Event::ArrowLeft)
+            {
+                state->NavigateUp();
+                return true;
+            }
+            if (event == Event::ArrowRight || event == Event::Return)
             {
                 if (state->mid_selected == 0)
                 {
@@ -869,6 +862,11 @@ int main()
         }
         if (state->focus == FT::Right)
         {
+            if (event == Event::ArrowLeft)
+            {
+                state->focus = FT::Middle;
+                return true;
+            }
             if (event == Event::Return)
             {
                 std::vector<std::size_t> filtered = state->current_dir.FilteredIndices(state->find_query, state->find_mode);
