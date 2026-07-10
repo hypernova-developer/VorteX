@@ -38,7 +38,9 @@ VorteX strictly obeys the foundational principles of minimized structural footpr
 2. C++ CLI
  This one did not look pretty but more importantly, it did not work well. It had a lot of bugs. After this attempt, I stopped project VorteX again for approximately 1 month.
 3. C++ FTXUI (TUI)
- This was the true final of the project VorteX. It looked so pretty and worked well without bugs.
+ This was the true stabilized version of the project VorteX. It looked so pretty and worked well without bugs.
+4. 3++
+ This version is now the rival of Yazi with a far better UI and UX.
 
 - VorteX is inspired by [sxyazi/yazi](https://github.com/sxyazi/yazi) and developed to be an alternative for it.
 
